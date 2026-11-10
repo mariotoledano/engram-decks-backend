@@ -1,0 +1,80 @@
+# ==============================================================================
+# CURSOR RULES: Engram Decks Backend API
+# ==============================================================================
+# Guidelines for LLM interactions to ensure code quality, clean architecture,
+# and project-specific technical standards.
+
+project_info:
+  name: "Engram Decks API"
+  description: "RESTful API Backend for flashcard learning and spaced repetition"
+  version: "1.0.0"
+  stack:
+    language: "Java 21 (Eclipse Temurin)"
+    framework: "Spring Boot 4.1.2"
+    database: "MongoDB Community (Spring Data MongoDB)"
+    build_tool: "Maven"
+    base_package: "com.engramdecks.api"
+
+# ------------------------------------------------------------------------------
+# 1. ARCHITECTURE & PACKAGE HIERARCHY
+# ------------------------------------------------------------------------------
+architecture_rules:
+  pattern: "Domain-Driven Layered Architecture"
+  packages:
+    - "com.engramdecks.api.config       -> Spring, MongoDB, CORS, and OpenAPI configurations"
+    - "com.engramdecks.api.controller   -> REST endpoints and HTTP transport layer"
+    - "com.engramdecks.api.dto          -> Data Transfer Objects (request/ and response/)"
+    - "com.engramdecks.api.exception   -> Global exception handling (@RestControllerAdvice)"
+    - "com.engramdecks.api.mapper      -> Explicit conversion between Entities and DTOs"
+    - "com.engramdecks.api.model       -> MongoDB documents (@Document)"
+    - "com.engramdecks.api.repository  -> Data access interfaces (MongoRepository)"
+    - "com.engramdecks.api.service     -> Business logic interfaces"
+    - "com.engramdecks.api.service.impl-> Business logic implementations"
+
+  isolation_rules:
+    - "NEVER expose 'model' objects directly in Controller HTTP responses."
+    - "Controllers MUST only accept Request DTOs and return Response DTOs."
+    - "Entity <-> DTO mapping MUST occur within the Service layer using Mappers."
+    - "ALWAYS use constructor injection (@RequiredArgsConstructor). NEVER use @Autowired on fields."
+
+# ------------------------------------------------------------------------------
+# 2. JAVA 21 & SPRING BOOT CODING STANDARDS
+# ------------------------------------------------------------------------------
+code_style:
+  java_features:
+    - "Use Java Records for immutable DTOs where appropriate."
+    - "Use pattern matching and modern switch expressions to simplify logic."
+    - "Leverage Sequenced Collections where applicable."
+
+  lombok_usage:
+    - "Models (@Document): Use @Data, @Builder, @NoArgsConstructor, @AllArgsConstructor."
+    - "Services & Controllers: Use @RequiredArgsConstructor for dependency injection."
+    - "Logging: Use @Slf4j. System.out.println() is FORBIDDEN."
+
+  rest_conventions:
+    - "Base URL path: '/api/v1/...'"
+    - "HTTP Verbs: GET (read), POST (create), PUT (full update), PATCH (partial update), DELETE (remove)."
+    - "Response entity: ALWAYS return ResponseEntity<T> with explicit HTTP status codes (200, 201, 204, 400, 404)."
+    - "Validation: Apply jakarta.validation annotations (@NotNull, @NotBlank, @Size) on Request DTOs with @Valid in Controllers."
+
+# ------------------------------------------------------------------------------
+# 3. ERROR HANDLING
+# ------------------------------------------------------------------------------
+error_handling:
+  policy: "Centralized Exception Management"
+  rules:
+    - "Domain exceptions must extend RuntimeException (e.g., ResourceNotFoundException)."
+    - "GlobalExceptionHandler intercepts exceptions via @RestControllerAdvice and @ExceptionHandler."
+    - "Error responses must use a standardized ErrorResponse DTO with timestamp, HTTP status, clear message, and validation details."
+
+# ------------------------------------------------------------------------------
+# 4. TESTING & OBSERVABILITY
+# ------------------------------------------------------------------------------
+testing_and_telemetry:
+  testing_stack: "JUnit 5 + Mockito + Testcontainers (MongoDB)"
+  rules:
+    - "Integration tests must use Testcontainers for a real ephemeral MongoDB instance."
+    - "Unit tests for services must isolate dependencies using @Mock and @InjectMocks."
+  telemetry:
+    - "Maintain Spring Boot Actuator for health checks (/actuator/health)."
+    - "Document all controller endpoints using OpenAPI/Swagger annotations (@Operation, @ApiResponse)."
