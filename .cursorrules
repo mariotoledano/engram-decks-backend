@@ -6,7 +6,7 @@
 
 project_info:
   name: "Engram Decks API"
-  description: "RESTful API Backend for flashcard learning and spaced repetition"
+  description: "RESTful API Backend for flashcard decks and learning"
   version: "1.0.0"
   stack:
     language: "Java 21 (Eclipse Temurin)"

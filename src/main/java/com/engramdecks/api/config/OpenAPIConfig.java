@@ -13,7 +13,7 @@ public class OpenAPIConfig {
 		return new OpenAPI()
 				.info(new Info()
 						.title("Engram Decks API")
-						.description("RESTful API for flashcard learning and spaced repetition")
+						.description("RESTful API for flashcard decks and learning")
 						.version("1.0.0"));
 	}
 

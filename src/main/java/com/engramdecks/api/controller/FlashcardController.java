@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.engramdecks.api.dto.request.CreateFlashcardRequest;
@@ -30,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 
 @Tag(name = "Flashcards")
 @RestController
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class FlashcardController {
 
@@ -39,7 +41,7 @@ public class FlashcardController {
 	@ApiResponse(responseCode = "200", description = "Flashcards retrieved")
 	@ApiResponse(responseCode = "404", description = "Deck not found",
 			content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-	@GetMapping("/api/v1/decks/{deckId}/flashcards")
+	@GetMapping("/decks/{deckId}/flashcards")
 	public ResponseEntity<List<FlashcardResponse>> findByDeckId(@PathVariable String deckId) {
 		return ResponseEntity.ok(flashcardService.findByDeckId(deckId));
 	}
@@ -50,7 +52,7 @@ public class FlashcardController {
 			content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	@ApiResponse(responseCode = "404", description = "Deck not found",
 			content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-	@PostMapping("/api/v1/decks/{deckId}/flashcards")
+	@PostMapping("/decks/{deckId}/flashcards")
 	public ResponseEntity<FlashcardResponse> create(
 			@PathVariable String deckId,
 			@Valid @RequestBody CreateFlashcardRequest request) {
@@ -61,7 +63,7 @@ public class FlashcardController {
 	@ApiResponse(responseCode = "200", description = "Flashcard retrieved")
 	@ApiResponse(responseCode = "404", description = "Flashcard not found",
 			content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-	@GetMapping("/api/v1/flashcards/{id}")
+	@GetMapping("/flashcards/{id}")
 	public ResponseEntity<FlashcardResponse> findById(@PathVariable String id) {
 		return ResponseEntity.ok(flashcardService.findById(id));
 	}
@@ -72,7 +74,7 @@ public class FlashcardController {
 			content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	@ApiResponse(responseCode = "404", description = "Flashcard not found",
 			content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-	@PutMapping("/api/v1/flashcards/{id}")
+	@PutMapping("/flashcards/{id}")
 	public ResponseEntity<FlashcardResponse> update(
 			@PathVariable String id,
 			@Valid @RequestBody UpdateFlashcardRequest request) {
@@ -85,7 +87,7 @@ public class FlashcardController {
 			content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	@ApiResponse(responseCode = "404", description = "Flashcard not found",
 			content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-	@PatchMapping("/api/v1/flashcards/{id}")
+	@PatchMapping("/flashcards/{id}")
 	public ResponseEntity<FlashcardResponse> patch(
 			@PathVariable String id,
 			@Valid @RequestBody PatchFlashcardRequest request) {
@@ -96,7 +98,7 @@ public class FlashcardController {
 	@ApiResponse(responseCode = "204", description = "Flashcard deleted")
 	@ApiResponse(responseCode = "404", description = "Flashcard not found",
 			content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-	@DeleteMapping("/api/v1/flashcards/{id}")
+	@DeleteMapping("/flashcards/{id}")
 	public ResponseEntity<Void> delete(@PathVariable String id) {
 		flashcardService.delete(id);
 		return ResponseEntity.noContent().build();

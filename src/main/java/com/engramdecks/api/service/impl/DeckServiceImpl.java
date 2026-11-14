@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.engramdecks.api.dto.request.CreateDeckRequest;
+import com.engramdecks.api.dto.request.PatchDeckRequest;
 import com.engramdecks.api.dto.request.UpdateDeckRequest;
 import com.engramdecks.api.dto.response.DeckResponse;
 import com.engramdecks.api.exception.ResourceNotFoundException;
@@ -53,6 +54,14 @@ public class DeckServiceImpl implements DeckService {
 	}
 
 	@Override
+	public DeckResponse patch(String id, PatchDeckRequest request) {
+		validatePatch(request);
+		Deck deck = findDeck(id);
+		deckMapper.patch(deck, request);
+		return deckMapper.toResponse(deckRepository.save(deck));
+	}
+
+	@Override
 	public void delete(String id) {
 		findDeck(id);
 		log.info("Deleting deck {} and its flashcards", id);
@@ -63,6 +72,12 @@ public class DeckServiceImpl implements DeckService {
 	private Deck findDeck(String id) {
 		return deckRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Deck not found with id: " + id));
+	}
+
+	private void validatePatch(PatchDeckRequest request) {
+		if (request.name() != null && request.name().isBlank()) {
+			throw new IllegalArgumentException("Name must not be blank");
+		}
 	}
 
 }

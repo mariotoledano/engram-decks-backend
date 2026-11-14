@@ -41,7 +41,13 @@ class FlashcardServiceImplTest {
 		CreateFlashcardRequest request = new CreateFlashcardRequest("front", "back");
 		Flashcard toSave = Flashcard.builder().deckId("deck-1").front("front").back("back").build();
 		Flashcard saved = Flashcard.builder().id("card-1").deckId("deck-1").front("front").back("back").build();
-		FlashcardResponse response = new FlashcardResponse("card-1", "deck-1", "front", "back", null, null);
+		FlashcardResponse response = new FlashcardResponse(
+				"card-1",
+				"deck-1",
+				"front",
+				"back",
+				null,
+				null);
 
 		when(deckRepository.existsById("deck-1")).thenReturn(true);
 		when(flashcardMapper.toEntity("deck-1", request)).thenReturn(toSave);

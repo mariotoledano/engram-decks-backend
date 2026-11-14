@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.engramdecks.api.dto.request.CreateDeckRequest;
+import com.engramdecks.api.dto.request.PatchDeckRequest;
 import com.engramdecks.api.dto.request.UpdateDeckRequest;
 import com.engramdecks.api.dto.response.DeckResponse;
 import com.engramdecks.api.dto.response.ErrorResponse;
@@ -69,6 +71,17 @@ public class DeckController {
 	@PutMapping("/{id}")
 	public ResponseEntity<DeckResponse> update(@PathVariable String id, @Valid @RequestBody UpdateDeckRequest request) {
 		return ResponseEntity.ok(deckService.update(id, request));
+	}
+
+	@Operation(summary = "Partially update a deck")
+	@ApiResponse(responseCode = "200", description = "Deck updated")
+	@ApiResponse(responseCode = "400", description = "Invalid request",
+			content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	@ApiResponse(responseCode = "404", description = "Deck not found",
+			content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	@PatchMapping("/{id}")
+	public ResponseEntity<DeckResponse> patch(@PathVariable String id, @Valid @RequestBody PatchDeckRequest request) {
+		return ResponseEntity.ok(deckService.patch(id, request));
 	}
 
 	@Operation(summary = "Delete a deck and its flashcards")

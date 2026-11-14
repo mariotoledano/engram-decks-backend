@@ -40,11 +40,46 @@ Swagger UI is the full request and response contract. The routes below are the m
 | Method | Path |
 | --- | --- |
 | `GET`, `POST` | `/api/v1/decks` |
-| `GET`, `PUT`, `DELETE` | `/api/v1/decks/{id}` |
+| `GET`, `PUT`, `PATCH`, `DELETE` | `/api/v1/decks/{id}` |
 | `GET`, `POST` | `/api/v1/decks/{deckId}/flashcards` |
 | `GET`, `PUT`, `PATCH`, `DELETE` | `/api/v1/flashcards/{id}` |
 
 Deleting a deck also deletes its flashcards.
+
+OpenAPI JSON (app running): [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
+
+## Local dev-utils
+
+The `dev-utils/` folder is listed in `.gitignore`. Use it for personal scripts and MongoDB seeds. It is not committed to git.
+
+Requirements:
+
+- [mongosh](https://www.mongodb.com/docs/mongodb-shell/) for seeds
+
+Scripts (create or refresh them locally):
+
+| File | Purpose |
+| --- | --- |
+| `dev-utils/mongo/seed-dev.mongodb.js` | Reset and load dev decks (4 mazos + ~128 flashcards) |
+
+Example (from the repo root):
+
+```bat
+mongosh "mongodb://localhost:27017/engram-decks" --file dev-utils/mongo/seed-dev.mongodb.js
+```
+
+Seed content (after running the script):
+
+| Deck (name) | Content |
+| --- | --- |
+| Filosofía estoica | ~32 flashcards (estoicismo clásico y práctica) |
+| Programación | ~32 flashcards (fundamentos y buenas prácticas) |
+| Psicología | ~32 flashcards (cognición, teorías, sesgos) |
+| Neurociencia | ~32 flashcards (cerebro, memoria, métodos) |
+
+Deck and flashcard `_id` values are **MongoDB ObjectIds** (24-char hex), the same shape the API generates on create—not fixed strings. After seeding, `mongosh` prints each deck id; use it in `GET /api/v1/decks/<id>/flashcards`.
+
+**Compass:** select database `engram-decks`, open Mongosh, paste the full `seed-dev.mongodb.js` and run (same as `mongosh --file`).
 
 ## Tests
 

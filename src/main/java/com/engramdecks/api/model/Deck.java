@@ -1,6 +1,8 @@
 package com.engramdecks.api.model;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -25,6 +27,9 @@ public class Deck {
 	private String name;
 
 	private String description;
+
+	@Builder.Default
+	private Set<String> tags = new HashSet<>();
 
 	@CreatedDate
 	private Instant createdAt;
