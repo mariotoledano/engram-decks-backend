@@ -24,6 +24,7 @@ public class DeckCoverRequestValidator implements ConstraintValidator<ValidDeckC
 		return switch (request.type()) {
 			case COLOR -> COLOR.matcher(value).matches();
 			case IMAGE -> IMAGE.matcher(value).matches();
+			default -> false;
 		};
 	}
 

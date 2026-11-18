@@ -116,6 +116,20 @@ class FlashcardServiceImplTest {
 	}
 
 	@Test
+	void findAllMapsEveryFlashcard() {
+		when(flashcardRepository.findAll()).thenReturn(List.of(flashcard("card-1", Set.of("deck-1"))));
+
+		List<FlashcardResponse> result = flashcardService.findAll();
+
+		assertEquals(1, result.size());
+		assertEquals("card-1", result.getFirst().id());
+		assertEquals(List.of("deck-1"), result.getFirst().deckIds());
+		assertEquals("front", result.getFirst().front());
+		assertEquals("back", result.getFirst().back());
+		verify(flashcardRepository).findAll();
+	}
+
+	@Test
 	void findUnlinkedEscapesTheQueryAndReturnsCardsWithoutDecks() {
 		Flashcard card = flashcard("card-1", Set.of());
 		card.setFront("a+b");

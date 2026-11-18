@@ -38,6 +38,13 @@ public class FlashcardController {
 
 	private final FlashcardService flashcardService;
 
+	@Operation(summary = "List all flashcards")
+	@ApiResponse(responseCode = "200", description = "Flashcards retrieved")
+	@GetMapping("/flashcards")
+	public ResponseEntity<List<FlashcardResponse>> findAll() {
+		return ResponseEntity.ok(flashcardService.findAll());
+	}
+
 	@Operation(summary = "List flashcards in a deck")
 	@ApiResponse(responseCode = "200", description = "Flashcards retrieved")
 	@ApiResponse(responseCode = "404", description = "Deck not found",

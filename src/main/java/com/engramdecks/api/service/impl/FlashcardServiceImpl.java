@@ -30,6 +30,13 @@ public class FlashcardServiceImpl implements FlashcardService {
 	private final FlashcardMapper flashcardMapper;
 
 	@Override
+	public List<FlashcardResponse> findAll() {
+		return flashcardRepository.findAll().stream()
+				.map(flashcardMapper::toResponse)
+				.toList();
+	}
+
+	@Override
 	public List<FlashcardResponse> findByDeckId(String deckId) {
 		requireDeck(deckId);
 		return flashcardRepository.findByDeckIdsContaining(deckId).stream()

@@ -9,6 +9,8 @@ import com.engramdecks.api.dto.response.FlashcardResponse;
 
 public interface FlashcardService {
 
+	List<FlashcardResponse> findAll();
+
 	List<FlashcardResponse> findByDeckId(String deckId);
 
 	List<FlashcardResponse> findUnlinked(String query);
