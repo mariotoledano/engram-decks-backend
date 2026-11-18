@@ -11,13 +11,19 @@ public interface FlashcardService {
 
 	List<FlashcardResponse> findByDeckId(String deckId);
 
+	List<FlashcardResponse> findUnlinked(String query);
+
 	FlashcardResponse findById(String id);
 
 	FlashcardResponse create(String deckId, CreateFlashcardRequest request);
 
+	FlashcardResponse create(CreateFlashcardRequest request);
+
 	FlashcardResponse update(String id, UpdateFlashcardRequest request);
 
 	FlashcardResponse patch(String id, PatchFlashcardRequest request);
+
+	void unlinkFromDeck(String deckId, String flashcardId);
 
 	void delete(String id);
 

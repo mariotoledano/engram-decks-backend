@@ -8,7 +8,9 @@ public record DeckResponse(
 		String name,
 		String description,
 		Set<String> tags,
+		DeckCoverResponse cover,
 		Instant createdAt,
-		Instant updatedAt
+		Instant updatedAt,
+		Instant lastTimeStudiedAt
 ) {
 }

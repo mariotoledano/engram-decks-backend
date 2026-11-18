@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.engramdecks.api.dto.request.CreateFlashcardRequest;
@@ -46,17 +47,48 @@ public class FlashcardController {
 		return ResponseEntity.ok(flashcardService.findByDeckId(deckId));
 	}
 
-	@Operation(summary = "Create a flashcard in a deck")
+	@Operation(
+			summary = "Create a flashcard in a deck",
+			description = "deckIds in the body are ignored. The flashcard is linked only to the deck id in the path.")
 	@ApiResponse(responseCode = "201", description = "Flashcard created")
 	@ApiResponse(responseCode = "400", description = "Invalid request",
 			content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	@ApiResponse(responseCode = "404", description = "Deck not found",
 			content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	@PostMapping("/decks/{deckId}/flashcards")
-	public ResponseEntity<FlashcardResponse> create(
+	public ResponseEntity<FlashcardResponse> createInDeck(
 			@PathVariable String deckId,
 			@Valid @RequestBody CreateFlashcardRequest request) {
 		return ResponseEntity.status(HttpStatus.CREATED).body(flashcardService.create(deckId, request));
+	}
+
+	@Operation(summary = "Unlink a flashcard from a deck")
+	@ApiResponse(responseCode = "204", description = "Flashcard unlinked from the deck")
+	@ApiResponse(responseCode = "404", description = "Flashcard not found",
+			content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	@DeleteMapping("/decks/{deckId}/flashcards/{flashcardId}")
+	public ResponseEntity<Void> unlinkFromDeck(
+			@PathVariable String deckId,
+			@PathVariable String flashcardId) {
+		flashcardService.unlinkFromDeck(deckId, flashcardId);
+		return ResponseEntity.noContent().build();
+	}
+
+	@Operation(summary = "Search flashcards that belong to no deck")
+	@ApiResponse(responseCode = "200", description = "Unlinked flashcards retrieved")
+	@GetMapping("/flashcards/unlinked")
+	public ResponseEntity<List<FlashcardResponse>> findUnlinked(
+			@RequestParam(name = "q", required = false) String query) {
+		return ResponseEntity.ok(flashcardService.findUnlinked(query));
+	}
+
+	@Operation(summary = "Create a flashcard, optionally linked to decks")
+	@ApiResponse(responseCode = "201", description = "Flashcard created")
+	@ApiResponse(responseCode = "400", description = "Invalid request",
+			content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	@PostMapping("/flashcards")
+	public ResponseEntity<FlashcardResponse> create(@Valid @RequestBody CreateFlashcardRequest request) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(flashcardService.create(request));
 	}
 
 	@Operation(summary = "Get a flashcard by id")

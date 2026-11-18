@@ -54,5 +54,5 @@ build/
 ### VS Code & Cursor ###
 .vscode/
 
-# Local dev scripts, seeds, OpenAPI exports (not in repo)
-dev-utils/
+# Generated OpenAPI snapshot (regenerate with download-api-docs.bat)
+dev-utils/api-docs-json/openapi.json

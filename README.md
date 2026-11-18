@@ -15,7 +15,13 @@ The connection string lives in `src/main/resources/application.properties`:
 spring.mongodb.uri=mongodb://localhost:27017/engram-decks
 ```
 
-Windows:
+Windows (helper):
+
+```bat
+dev-utils\init-api.bat
+```
+
+Or with Maven:
 
 ```bat
 mvnw.cmd spring-boot:run
@@ -29,11 +35,28 @@ Unix:
 
 The API listens on port 8080.
 
+## Dev utilities
+
+Scripts under [`dev-utils/`](dev-utils/):
+
+| File | Purpose |
+| --- | --- |
+| [`dev-utils/init-api.bat`](dev-utils/init-api.bat) | Starts the API locally. Prints the Maven environment, then health and Swagger links once the server is ready |
+| [`dev-utils/mongo/seed-dev.mongodb.js`](dev-utils/mongo/seed-dev.mongodb.js) | Wipes and seeds sample decks/flashcards in MongoDB |
+| [`dev-utils/api-docs-json/download-api-docs.bat`](dev-utils/api-docs-json/download-api-docs.bat) | Downloads OpenAPI JSON from a running API into `dev-utils/api-docs-json/openapi.json` (local file; not committed) |
+
+Seed example (MongoDB must be running):
+
+```bat
+mongosh "mongodb://localhost:27017/engram-decks" --file dev-utils\mongo\seed-dev.mongodb.js
+```
+
 ## Check
 
 - Health: [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health)
 - Swagger UI: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 - Base path: `/api/v1`
+- OpenAPI JSON (app running): [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
 
 Swagger UI is the full request and response contract. The routes below are the map.
 
@@ -42,44 +65,20 @@ Swagger UI is the full request and response contract. The routes below are the m
 | `GET`, `POST` | `/api/v1/decks` |
 | `GET`, `PUT`, `PATCH`, `DELETE` | `/api/v1/decks/{id}` |
 | `GET`, `POST` | `/api/v1/decks/{deckId}/flashcards` |
+| `DELETE` | `/api/v1/decks/{deckId}/flashcards/{flashcardId}` |
+| `GET` | `/api/v1/flashcards/unlinked` |
+| `GET`, `POST` | `/api/v1/flashcards` |
 | `GET`, `PUT`, `PATCH`, `DELETE` | `/api/v1/flashcards/{id}` |
+| `GET` | `/api/v1/tags` |
+| `POST` | `/api/v1/study-sessions/preview` |
+| `POST` | `/api/v1/study-sessions` |
+| `GET` | `/api/v1/maintenance/summary` |
+| `GET` | `/api/v1/maintenance/flashcards` |
+| `DELETE` | `/api/v1/maintenance/decks` |
+| `DELETE` | `/api/v1/maintenance/flashcards` |
+| `DELETE` | `/api/v1/maintenance/unlinked` |
 
-Deleting a deck also deletes its flashcards.
-
-OpenAPI JSON (app running): [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
-
-## Local dev-utils
-
-The `dev-utils/` folder is listed in `.gitignore`. Use it for personal scripts and MongoDB seeds. It is not committed to git.
-
-Requirements:
-
-- [mongosh](https://www.mongodb.com/docs/mongodb-shell/) for seeds
-
-Scripts (create or refresh them locally):
-
-| File | Purpose |
-| --- | --- |
-| `dev-utils/mongo/seed-dev.mongodb.js` | Reset and load dev decks (4 mazos + ~128 flashcards) |
-
-Example (from the repo root):
-
-```bat
-mongosh "mongodb://localhost:27017/engram-decks" --file dev-utils/mongo/seed-dev.mongodb.js
-```
-
-Seed content (after running the script):
-
-| Deck (name) | Content |
-| --- | --- |
-| Filosofía estoica | ~32 flashcards (estoicismo clásico y práctica) |
-| Programación | ~32 flashcards (fundamentos y buenas prácticas) |
-| Psicología | ~32 flashcards (cognición, teorías, sesgos) |
-| Neurociencia | ~32 flashcards (cerebro, memoria, métodos) |
-
-Deck and flashcard `_id` values are **MongoDB ObjectIds** (24-char hex), the same shape the API generates on create—not fixed strings. After seeding, `mongosh` prints each deck id; use it in `GET /api/v1/decks/<id>/flashcards`.
-
-**Compass:** select database `engram-decks`, open Mongosh, paste the full `seed-dev.mongodb.js` and run (same as `mongosh --file`).
+Deleting a deck unlinks its flashcards. A flashcard that still belongs to another deck stays there. Maintenance routes are registered only when `engram.maintenance.enabled=true` (the local default). Each wipe requires a JSON body `{ "confirm": "BORRAR" }`. CORS allows localhost and private LAN addresses so a phone running Expo can reach the API; set the flag to `false` before exposing the port beyond that network, because the confirmation word is not a credential. A study-session preview does not create a deck. Saving a session creates a deck and links the existing flashcards. Creating a flashcard with `POST /api/v1/decks/{deckId}/flashcards` links it only to the deck id in the path and ignores `deckIds` in the body.
 
 ## Tests
 
@@ -95,7 +94,7 @@ Unix:
 ./mvnw test
 ```
 
-`FlashcardServiceImplTest` uses mocks and does not need MongoDB. `EngramDecksBackendApplicationTests` boots the full application context, so MongoDB must be running.
+`DeckServiceImplTest`, `FlashcardServiceImplTest`, `StudySessionServiceImplTest`, `MaintenanceServiceImplTest`, `DeckMapperTest`, `TagNormalizerTest`, `DeckCoverRequestValidatorTest`, and `DeckControllerTest` use mocks or MockMvc and do not need MongoDB. `EngramDecksBackendApplicationTests` boots the full application context, so MongoDB must be running.
 
 ## Layout
 

@@ -1,6 +1,8 @@
 package com.engramdecks.api.service.impl;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
@@ -30,7 +32,18 @@ public class FlashcardServiceImpl implements FlashcardService {
 	@Override
 	public List<FlashcardResponse> findByDeckId(String deckId) {
 		requireDeck(deckId);
-		return flashcardRepository.findByDeckId(deckId).stream()
+		return flashcardRepository.findByDeckIdsContaining(deckId).stream()
+				.map(flashcardMapper::toResponse)
+				.toList();
+	}
+
+	@Override
+	public List<FlashcardResponse> findUnlinked(String query) {
+		String trimmed = query == null ? "" : query.trim();
+		List<Flashcard> flashcards = trimmed.isEmpty()
+				? flashcardRepository.findUnlinked()
+				: flashcardRepository.findUnlinkedMatching(RegexEscaper.escape(trimmed));
+		return flashcards.stream()
 				.map(flashcardMapper::toResponse)
 				.toList();
 	}
@@ -44,14 +57,23 @@ public class FlashcardServiceImpl implements FlashcardService {
 	public FlashcardResponse create(String deckId, CreateFlashcardRequest request) {
 		requireDeck(deckId);
 		log.info("Creating flashcard in deck {}", deckId);
-		Flashcard flashcard = flashcardRepository.save(flashcardMapper.toEntity(deckId, request));
+		Flashcard flashcard = flashcardRepository.save(flashcardMapper.toEntity(Set.of(deckId), request));
+		return flashcardMapper.toResponse(flashcard);
+	}
+
+	@Override
+	public FlashcardResponse create(CreateFlashcardRequest request) {
+		Set<String> deckIds = requireDecks(request.deckIds());
+		log.info("Creating flashcard in {} decks", deckIds.size());
+		Flashcard flashcard = flashcardRepository.save(flashcardMapper.toEntity(deckIds, request));
 		return flashcardMapper.toResponse(flashcard);
 	}
 
 	@Override
 	public FlashcardResponse update(String id, UpdateFlashcardRequest request) {
 		Flashcard flashcard = findFlashcard(id);
-		flashcardMapper.update(flashcard, request);
+		Set<String> deckIds = requireDecks(request.deckIds());
+		flashcardMapper.update(flashcard, request, deckIds);
 		return flashcardMapper.toResponse(flashcardRepository.save(flashcard));
 	}
 
@@ -61,6 +83,16 @@ public class FlashcardServiceImpl implements FlashcardService {
 		Flashcard flashcard = findFlashcard(id);
 		flashcardMapper.patch(flashcard, request);
 		return flashcardMapper.toResponse(flashcardRepository.save(flashcard));
+	}
+
+	@Override
+	public void unlinkFromDeck(String deckId, String flashcardId) {
+		Flashcard flashcard = findFlashcard(flashcardId);
+		Set<String> deckIds = flashcard.getDeckIds();
+		if (deckIds != null && deckIds.remove(deckId)) {
+			log.info("Unlinking flashcard {} from deck {}", flashcardId, deckId);
+			flashcardRepository.save(flashcard);
+		}
 	}
 
 	@Override
@@ -79,6 +111,25 @@ public class FlashcardServiceImpl implements FlashcardService {
 		if (!deckRepository.existsById(deckId)) {
 			throw new ResourceNotFoundException("Deck not found with id: " + deckId);
 		}
+	}
+
+	private Set<String> requireDecks(List<String> deckIds) {
+		if (deckIds == null || deckIds.isEmpty()) {
+			return new LinkedHashSet<>();
+		}
+		Set<String> unique = new LinkedHashSet<>();
+		for (String deckId : deckIds) {
+			if (deckId == null || deckId.isBlank()) {
+				throw new IllegalArgumentException("Deck id must not be blank");
+			}
+			unique.add(deckId);
+		}
+		for (String deckId : unique) {
+			if (!deckRepository.existsById(deckId)) {
+				throw new IllegalArgumentException("Unknown deck id: " + deckId);
+			}
+		}
+		return unique;
 	}
 
 	private void validatePatch(PatchFlashcardRequest request) {

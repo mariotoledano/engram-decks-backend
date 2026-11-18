@@ -41,8 +41,8 @@ public class DeckServiceImpl implements DeckService {
 
 	@Override
 	public DeckResponse create(CreateDeckRequest request) {
-		log.info("Creating deck");
 		Deck deck = deckRepository.save(deckMapper.toEntity(request));
+		log.info("Created deck {}", deck.getId());
 		return deckMapper.toResponse(deck);
 	}
 
@@ -64,9 +64,19 @@ public class DeckServiceImpl implements DeckService {
 	@Override
 	public void delete(String id) {
 		findDeck(id);
-		log.info("Deleting deck {} and its flashcards", id);
-		flashcardRepository.deleteByDeckId(id);
+		log.info("Deleting deck {} and unlinking its flashcards", id);
+		flashcardRepository.pullDeckId(id);
 		deckRepository.deleteById(id);
+	}
+
+	@Override
+	public void deleteAll() {
+		List<String> ids = deckRepository.findAll().stream()
+				.map(deck -> deck.getId())
+				.toList();
+		for (String id : ids) {
+			delete(id);
+		}
 	}
 
 	private Deck findDeck(String id) {

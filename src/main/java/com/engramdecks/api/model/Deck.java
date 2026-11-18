@@ -31,10 +31,14 @@ public class Deck {
 	@Builder.Default
 	private Set<String> tags = new HashSet<>();
 
+	private DeckCover cover;
+
 	@CreatedDate
 	private Instant createdAt;
 
 	@LastModifiedDate
 	private Instant updatedAt;
+
+	private Instant lastTimeStudiedAt;
 
 }

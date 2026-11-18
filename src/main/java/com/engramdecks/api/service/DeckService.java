@@ -21,4 +21,6 @@ public interface DeckService {
 
 	void delete(String id);
 
+	void deleteAll();
+
 }

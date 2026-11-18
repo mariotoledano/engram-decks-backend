@@ -84,7 +84,7 @@ public class DeckController {
 		return ResponseEntity.ok(deckService.patch(id, request));
 	}
 
-	@Operation(summary = "Delete a deck and its flashcards")
+	@Operation(summary = "Delete a deck and unlink its flashcards")
 	@ApiResponse(responseCode = "204", description = "Deck deleted")
 	@ApiResponse(responseCode = "404", description = "Deck not found",
 			content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
