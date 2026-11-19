@@ -2,6 +2,7 @@ package com.engramdecks.api.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,6 +35,17 @@ class DeckServiceImplTest {
 
 	@InjectMocks
 	private DeckServiceImpl deckService;
+
+	@Test
+	void findByIdCountsCardsInTheDeck() {
+		Deck deck = Deck.builder().id("deck-1").name("Filosofía").build();
+		when(deckRepository.findById("deck-1")).thenReturn(Optional.of(deck));
+		when(flashcardRepository.countByDeckIdsContaining("deck-1")).thenReturn(4L);
+
+		deckService.findById("deck-1");
+
+		verify(deckMapper).toResponse(eq(deck), eq(4L));
+	}
 
 	@Test
 	void patchThrowsWhenNameIsBlank() {

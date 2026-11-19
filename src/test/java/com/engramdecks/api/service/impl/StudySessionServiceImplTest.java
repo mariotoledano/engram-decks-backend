@@ -97,7 +97,7 @@ class StudySessionServiceImplTest {
 		flashcard.setDeckIds(new HashSet<>(Set.of("old")));
 		when(flashcardRepository.findById("card-1")).thenReturn(Optional.of(flashcard));
 		when(deckService.create(new CreateDeckRequest("Repaso", null, Set.of("Java"), null)))
-				.thenReturn(new DeckResponse("deck-new", "Repaso", null, Set.of("java"), null, null, null, null));
+				.thenReturn(new DeckResponse("deck-new", "Repaso", null, Set.of("java"), null, null, null, null, 0));
 
 		var saved = studySessionService.save(new SaveStudySessionRequest(
 				"Repaso",

@@ -30,27 +30,27 @@ public class DeckServiceImpl implements DeckService {
 	@Override
 	public List<DeckResponse> findAll() {
 		return deckRepository.findAll().stream()
-				.map(deckMapper::toResponse)
+				.map(this::toResponse)
 				.toList();
 	}
 
 	@Override
 	public DeckResponse findById(String id) {
-		return deckMapper.toResponse(findDeck(id));
+		return toResponse(findDeck(id));
 	}
 
 	@Override
 	public DeckResponse create(CreateDeckRequest request) {
 		Deck deck = deckRepository.save(deckMapper.toEntity(request));
 		log.info("Created deck {}", deck.getId());
-		return deckMapper.toResponse(deck);
+		return toResponse(deck);
 	}
 
 	@Override
 	public DeckResponse update(String id, UpdateDeckRequest request) {
 		Deck deck = findDeck(id);
 		deckMapper.update(deck, request);
-		return deckMapper.toResponse(deckRepository.save(deck));
+		return toResponse(deckRepository.save(deck));
 	}
 
 	@Override
@@ -58,7 +58,7 @@ public class DeckServiceImpl implements DeckService {
 		validatePatch(request);
 		Deck deck = findDeck(id);
 		deckMapper.patch(deck, request);
-		return deckMapper.toResponse(deckRepository.save(deck));
+		return toResponse(deckRepository.save(deck));
 	}
 
 	@Override
@@ -77,6 +77,10 @@ public class DeckServiceImpl implements DeckService {
 		for (String id : ids) {
 			delete(id);
 		}
+	}
+
+	private DeckResponse toResponse(Deck deck) {
+		return deckMapper.toResponse(deck, flashcardRepository.countByDeckIdsContaining(deck.getId()));
 	}
 
 	private Deck findDeck(String id) {

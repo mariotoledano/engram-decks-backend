@@ -11,6 +11,7 @@ public record DeckResponse(
 		DeckCoverResponse cover,
 		Instant createdAt,
 		Instant updatedAt,
-		Instant lastTimeStudiedAt
+		Instant lastTimeStudiedAt,
+		long cardCount
 ) {
 }

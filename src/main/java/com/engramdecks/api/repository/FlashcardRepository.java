@@ -14,6 +14,8 @@ public interface FlashcardRepository extends MongoRepository<Flashcard, String> 
 
 	List<Flashcard> findByDeckIdsContaining(String deckId);
 
+	long countByDeckIdsContaining(String deckId);
+
 	@Query("{ 'deckIds': ?0 }")
 	@Update("{ '$pull': { 'deckIds': ?0 } }")
 	void pullDeckId(String deckId);

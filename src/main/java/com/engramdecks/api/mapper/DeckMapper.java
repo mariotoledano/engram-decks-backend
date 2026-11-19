@@ -49,7 +49,7 @@ public class DeckMapper {
 		}
 	}
 
-	public DeckResponse toResponse(Deck deck) {
+	public DeckResponse toResponse(Deck deck, long cardCount) {
 		DeckCover cover = deck.getCover() == null ? DeckCover.defaultColor() : deck.getCover();
 		return new DeckResponse(
 				deck.getId(),
@@ -59,7 +59,8 @@ public class DeckMapper {
 				new DeckCoverResponse(cover.getType(), cover.getValue()),
 				deck.getCreatedAt(),
 				deck.getUpdatedAt(),
-				deck.getLastTimeStudiedAt());
+				deck.getLastTimeStudiedAt(),
+				cardCount);
 	}
 
 	private static DeckCover coverOf(DeckCoverRequest request) {

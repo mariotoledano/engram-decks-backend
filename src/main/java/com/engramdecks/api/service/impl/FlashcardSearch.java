@@ -24,19 +24,19 @@ public class FlashcardSearch {
 		List<Criteria> criteria = new ArrayList<>();
 		if (tags != null && !tags.isEmpty()) {
 			if (match == TagMatch.ALL) {
-				criteria.add(Criteria.where("tags").all(tags));
+				criteria.add(Criteria.where(Flashcard::getTags).all(tags));
 			} else {
-				criteria.add(Criteria.where("tags").in(tags));
+				criteria.add(Criteria.where(Flashcard::getTags).in(tags));
 			}
 		}
 		if (deckIds != null && !deckIds.isEmpty()) {
-			criteria.add(Criteria.where("deckIds").in(deckIds));
+			criteria.add(Criteria.where(Flashcard::getDeckIds).in(deckIds));
 		}
 		if (query != null && !query.isBlank()) {
 			String pattern = RegexEscaper.escape(query.trim());
 			criteria.add(new Criteria().orOperator(
-					Criteria.where("front").regex(pattern, "i"),
-					Criteria.where("back").regex(pattern, "i")));
+					Criteria.where(Flashcard::getFront).regex(pattern, "i"),
+					Criteria.where(Flashcard::getBack).regex(pattern, "i")));
 		}
 
 		Query mongoQuery = new Query();
