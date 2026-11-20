@@ -66,4 +66,10 @@ class FlashcardListIntegrationTest {
 				.andExpect(status().isOk());
 	}
 
+	@Test
+	void unlinkedFlashcardsEndpointReturnsOk() throws Exception {
+		mockMvc.perform(get("/api/v1/flashcards/unlinked"))
+				.andExpect(status().isOk());
+	}
+
 }

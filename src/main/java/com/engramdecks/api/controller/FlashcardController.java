@@ -38,6 +38,14 @@ public class FlashcardController {
 
 	private final FlashcardService flashcardService;
 
+	@Operation(summary = "Search flashcards that belong to no deck")
+	@ApiResponse(responseCode = "200", description = "Unlinked flashcards retrieved")
+	@GetMapping("/flashcards/unlinked")
+	public ResponseEntity<List<FlashcardResponse>> findUnlinked(
+			@RequestParam(name = "q", required = false) String query) {
+		return ResponseEntity.ok(flashcardService.findUnlinked(query));
+	}
+
 	@Operation(summary = "List all flashcards")
 	@ApiResponse(responseCode = "200", description = "Flashcards retrieved")
 	@GetMapping("/flashcards")
@@ -79,14 +87,6 @@ public class FlashcardController {
 			@PathVariable String flashcardId) {
 		flashcardService.unlinkFromDeck(deckId, flashcardId);
 		return ResponseEntity.noContent().build();
-	}
-
-	@Operation(summary = "Search flashcards that belong to no deck")
-	@ApiResponse(responseCode = "200", description = "Unlinked flashcards retrieved")
-	@GetMapping("/flashcards/unlinked")
-	public ResponseEntity<List<FlashcardResponse>> findUnlinked(
-			@RequestParam(name = "q", required = false) String query) {
-		return ResponseEntity.ok(flashcardService.findUnlinked(query));
 	}
 
 	@Operation(summary = "Create a flashcard, optionally linked to decks")
